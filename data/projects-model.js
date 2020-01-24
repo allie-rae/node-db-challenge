@@ -21,30 +21,9 @@ function getProjectById(project_id) {
         .first();
 }
 
-function getProjectByIdStretch(project_id) {
-    return db('projects_resources')
-        .where({ projects_id: project_id })
-        .join('projects', 'projects_resources.projects_id', 'projects.id')
-        // .join('tasks', 'projects_resources.projects_id', 'tasks.projects_id')
-        // .join('resources', 'projects_resources.resources_id', 'resources.id')
-        .select('projects.id',
-            'projects.name',
-            'projects.description',
-            // 'tasks.id',
-            // 'tasks.description',
-            // 'tasks.notes'
-            )
-}
-
 function getTaskById(task_id) {
     return db('tasks')
         .where({ id: task_id })
-        .first();
-}
-
-function getResourceById(resource_id) {
-    return db('resources')
-        .where({ id: resource_id })
         .first();
 }
 
@@ -57,6 +36,44 @@ function getTasks(project_id) {
             'tasks.notes AS Task',
             'tasks.description AS TaskDescription',
             'tasks.completed AS Completed')
+}
+
+function getTasksByIdStretch(project_id) {
+    return db('tasks AS t')
+        .where({ projects_id: project_id })
+        .select('t.id', 't.description', 't.notes', 't.completed')
+        .then(result => {
+            return result
+        });
+}
+
+function getProjectByIdStretch(project_id) {
+    return db('projects_resources AS pr')
+        .where({ projects_id: project_id })
+        .join('projects AS p', 'pr.projects_id', 'p.id')
+        .select('p.id',
+            'p.name',
+            'p.description'
+        )
+        .then(result => {
+            getTasksByIdStretch(result[0].id)
+                .then(taskArray => {
+                    console.log("taskArray", taskArray)
+                    let newObj = { ...result[0], tasks: taskArray }
+                    console.log("newObj", newObj)
+                    return newObj
+                })
+                .catch(err => console.log(err));
+        })
+        .catch(err => {
+            console.log(err)
+        })
+}
+
+function getResourceById(resource_id) {
+    return db('resources')
+        .where({ id: resource_id })
+        .first();
 }
 
 function getResources(project_id) {
