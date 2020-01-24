@@ -26,7 +26,7 @@ router.get('/', (req, res) => {
       });
   });
 
-  router.post('/:id/tasks', (req, res) => {
+  router.post('/:id/tasks', validateProjectId, (req, res) => {
       Projects.addTask(req.body)
       .then(task => {
           res.status(200).json(task);
@@ -37,7 +37,7 @@ router.get('/', (req, res) => {
       });
   });
 
-  router.post('/:id/resources', (req, res) => {
+  router.post('/:id/resources', validateProjectId, (req, res) => {
     Projects.addResource(req.body)
     .then(resource => {
         res.status(200).json(resource);
@@ -48,7 +48,7 @@ router.get('/', (req, res) => {
     });
 });
 
-  router.get('/:id', (req, res) => {
+  router.get('/:id', validateProjectId, (req, res) => {
       Projects.getProjectById(req.params.id)
       .then(project => {
           res.status(200).json(project);
@@ -59,7 +59,18 @@ router.get('/', (req, res) => {
       });
   });
 
-  router.get('/:id/tasks', (req, res) => {
+  router.get('/:id/stretch', validateProjectId, (req, res) => {
+    Projects.getProjectByIdStretch(req.params.id)
+    .then(project => {
+        res.status(200).json(project);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({ errorMessage: 'Failed to retrieve project from database.'});
+    });
+});
+
+  router.get('/:id/tasks', validateProjectId, (req, res) => {
     Projects.getTasks(req.params.id)
     .then(tasks => {
       res.status(200).json(tasks);
@@ -72,7 +83,7 @@ router.get('/', (req, res) => {
 
 
 
-  router.get('/:id/resources', (req, res) => {
+  router.get('/:id/resources', validateProjectId, (req, res) => {
     Projects.getResources(req.params.id)
     .then(resources => {
       res.json(resources);
@@ -84,6 +95,20 @@ router.get('/', (req, res) => {
   });
 
 
+// custom middleware
+
+function validateProjectId(req, res, next) {
+    let id = req.params.id;
+    Projects.getProjectById(id)
+      .then(project => {
+        !project
+          ? res.status(404).json({ errorMessage: "Invalid project ID." })
+          : next();
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  };
 
 
   module.exports = router;

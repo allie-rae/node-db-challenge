@@ -7,7 +7,8 @@ module.exports = {
     add,
     getProjectById,
     addTask,
-    addResource
+    addResource,
+    getProjectByIdStretch
 }
 
 function get() {
@@ -16,20 +17,35 @@ function get() {
 
 function getProjectById(project_id) {
     return db('projects')
-    .where({ id: project_id })
-    .first();
+        .where({ id: project_id })
+        .first();
+}
+
+function getProjectByIdStretch(project_id) {
+    return db('projects_resources')
+        .where({ projects_id: project_id })
+        .join('projects', 'projects_resources.projects_id', 'projects.id')
+        // .join('tasks', 'projects_resources.projects_id', 'tasks.projects_id')
+        // .join('resources', 'projects_resources.resources_id', 'resources.id')
+        .select('projects.id',
+            'projects.name',
+            'projects.description',
+            // 'tasks.id',
+            // 'tasks.description',
+            // 'tasks.notes'
+            )
 }
 
 function getTaskById(task_id) {
     return db('tasks')
-    .where({ id: task_id })
-    .first();
+        .where({ id: task_id })
+        .first();
 }
 
 function getResourceById(resource_id) {
     return db('resources')
-    .where({ id: resource_id })
-    .first();
+        .where({ id: resource_id })
+        .first();
 }
 
 function getTasks(project_id) {
@@ -52,27 +68,27 @@ function getResources(project_id) {
 
 function add(projectData) {
     return db('projects')
-    .insert(projectData, 'id')
-    .then(ids => {
-        const [id] = ids;
-        return getProjectById(id)
-    })
+        .insert(projectData, 'id')
+        .then(ids => {
+            const [id] = ids;
+            return getProjectById(id)
+        })
 }
 
 function addTask(taskData) {
     return db('tasks')
-    .insert(taskData)
-    .then(ids => {
-        const [id] = ids;
-        return getTaskById(id)
-    })
+        .insert(taskData)
+        .then(ids => {
+            const [id] = ids;
+            return getTaskById(id)
+        })
 }
 
 function addResource(resourceData) {
     return db('resources')
-    .insert(resourceData)
-    .then(ids => {
-        const [id] = ids;
-        return getResourceById(id)
-    })
+        .insert(resourceData)
+        .then(ids => {
+            const [id] = ids;
+            return getResourceById(id)
+        })
 }
