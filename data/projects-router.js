@@ -59,7 +59,6 @@ router.get('/', (req, res) => {
       });
   });
 
-
   router.get('/:id/tasks', (req, res) => {
     Projects.getTasks(req.params.id)
     .then(tasks => {
