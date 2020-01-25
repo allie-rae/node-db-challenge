@@ -57,6 +57,7 @@ function getProjectByIdStretch(project_id) {
         )
         .then(result => {
             getTasksByIdStretch(result[0].id)
+                return db('tasks')
                 .then(taskArray => {
                     console.log("taskArray", taskArray)
                     let newObj = { ...result[0], tasks: taskArray }
@@ -68,6 +69,7 @@ function getProjectByIdStretch(project_id) {
         .catch(err => {
             console.log(err)
         })
+
 }
 
 function getResourceById(resource_id) {
